@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <style>
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #addCategory {
+      margin-left: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a id="logout" onclick="logout()">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Add Category</h3>
+          <span id="home">Home / Categories / Add Category</span>
+        </div>
+        <div id="dis">
+          <div class="form-container">
+            <form id="formFields">
+              <label>Category</label>
+              <input type="text" id="category" name="category" />
+              <div class="errors" id="categoryError"></div>
+              <button type="button" onclick="redirect()">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function redirect() {
+      const category = document.getElementById("category").value;
+      document.getElementById("categoryError").innerHTML = "";
+      if (category == "") {
+        document.getElementById("categoryError").innerHTML =
+          "*Please enter a category";
+        return false;
+      }
+
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category: category
+        }),
+      };
+
+      fetch("/addCategoryRequest", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Response:", data.message);
+          window.location.href = "/categories";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>

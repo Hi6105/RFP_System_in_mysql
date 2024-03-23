@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px;
+      border-top: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #addCategory {
+      margin-left: auto;
+    }
+
+    #dis {
+      margin-bottom: 2%;
+    }
+
+    #dashboard {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Dashboard</h3>
+          <span id="home">Home</span>
+        </div>
+        <div id="dis">
+          <span>Welcome to RFP System</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>

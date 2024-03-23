@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <title>Document</title>
+  <style>
+    #action {
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #download {
+      margin-left: auto;
+      background-color: #65b741;
+    }
+
+    #addCategory {
+      margin-left: 10px;
+      background-color: #65b741;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>RFP List</h3>
+          <span id="home">Home / RFP List</span>
+        </div>
+        <div id="dis">
+          <div id="categoryBox">
+            <span>RFP</span>
+            <button id="download" onclick="download()">Download List</button>
+            <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+            <button id="addCategory" onclick="redirect()">+ Add RFP</button>
+            <% } %>
+          </div>
+
+          <div id="allData">
+            <table>
+              <thead>
+                <tr>
+                  <th>RFP No.</th>
+                  <th>RFP Title</th>
+                  <th>RFP Last Date</th>
+                  <th>Min Amount</th>
+                  <th>Max Amount</th>
+                  <th>Status</th>
+                  <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+                  <th>Action</th>
+                  <% } %>
+                  <th>PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% RFPList.forEach(object => { %>
+                <tr>
+                  <td><%= object.rfp_no %></td>
+                  <td><%= object.item_name %></td>
+                  <td><%= object.last_date.toDateString() %></td>
+                  <td><%= object.min_price %></td>
+                  <td><%= object.max_price %></td>
+                  <td>
+                    <span class="badge" style="background-color: <%= object.status === 'OPEN' ? '#65b741' : 'red' %>;"><%= object.status %></span>
+                  </td>
+                  <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+                  <td>
+                    <span onclick="postData('<%= object.rfp_no %>')" id="action" style="color: <%= object.status === 'OPEN' ? 'red' : '#65b741' %>">
+                      <% if(object.status == 'OPEN') { %> Close <%} else {%>
+                      Open <%}%>
+                      </span>
+                    </td>
+                    <%}%>
+                  <td><span class="badge" style="cursor: pointer;" onclick="downloadRfpPdf('<%= object.rfp_no %>')">Download</span></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <div id="pagination">
+              <% if (page > 1) { %>
+              <div class="prevNext">
+                <a class="paginationElement" href="/RFP_List?page=<%= page - 1 %>">Previous</a>
+              </div>
+              <% } %>
+              <span>Page <%= page %> of <%= totalPages %></span>
+              <% if (page < totalPages) { %>
+              <div class="prevNext">
+                <a class="paginationElement" href="/RFP_List?page=<%= page + 1 %>">Next</a>
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function postData(rfpNo) {
+      console.log(rfpNo);
+      fetch("/rfpStatusUpdate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            rfpNo: rfpNo,
+          }),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          // Return response.json() to parse JSON asynchronously
+          return response.json();
+        })
+        .then((data) => {
+          // Process the response data here
+          // You can redirect to another page here if needed
+          if (data.message == "RFP status updated.") {
+            window.location.href = "/RFP_List";
+          }
+          console.log(data.message);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          // Handle errors
+        });
+    }
+
+    function redirect() {
+      window.location.href = "/RFP_select_category";
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function download() {
+      fetch("/downloadRFPList")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.text(); // Get the response as text
+        })
+        .then((csvData) => {
+          // Create a Blob from the CSV data
+          const blob = new Blob([csvData], {
+            type: "text/csv",
+          });
+
+          // Check for IE or Edge
+          if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, "RFP_List.csv");
+          } else {
+            // Create a temporary anchor element
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "RFP_List.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url); // Release the object URL resource
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function downloadRfpPdf(rfpNo) {
+
+      fetch(`/download-pdf`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            rfpNo: rfpNo,
+          }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to download PDF');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create a temporary anchor element to initiate the download
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `RFP_${rfpNo}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        })
+        .catch(error => {
+          console.error('Error downloading PDF:', error);
+        });
+    }
+  </script>
+</body>
+
+</html>

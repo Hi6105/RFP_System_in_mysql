@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <title>RFP System</title>
+  <style>
+    #top {
+      display: flex;
+      flex-direction: column;
+      background-color: #b4d4ff;
+      padding: 10px;
+      height: 20vh;
+    }
+
+    #formFields {
+      display: flex;
+      flex-direction: column;
+      padding: 3%;
+    }
+
+    #login {
+      width: 50%;
+      margin: auto;
+      margin-top: 2%;
+      background-color: white;
+      border-radius: 3px;
+    }
+
+    body {
+      background-color: #eef5ff;
+    }
+
+    h1,
+    h3 {
+      color: #176b87;
+    }
+
+    h1 {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    h3 {
+      margin-bottom: auto;
+    }
+
+    a {
+      margin: auto;
+    }
+
+    .form-container {
+      border: none;
+    }
+
+    #signupBtn {
+      width: 100%;
+      margin: auto;
+      background-color: #176b87;
+      border-radius: 6px;
+      padding: 6px 10px;
+      line-height: normal;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="login">
+    <div id="top">
+      <h1>Welcome to RFP System</h1>
+      <h3>Register as Vendor</h3>
+    </div>
+    <div class="form-container">
+      <form id="formFields">
+        <div>
+          <label>First Name*</label>
+          <input type="text" id="firstName" name="firstName" value="<%=prefill.firstName %>" />
+          <div id="firstNameError" class="errors"></div>
+        </div>
+        <label>Last Name*</label>
+        <input type="text" id="lastName" name="lastName" value="<%=prefill.lastName %>" required />
+        <div id="lastNameError" class="errors"></div>
+        <label>Email*</label>
+        <input type="email" id="email" name="email" value="<%=prefill.email %>" required />
+        <div id="emailError" class="errors"></div>
+        <label>Password*</label>
+        <input type="password" id="password" name="password" required />
+        <div id="passwordError" class="errors"></div>
+        <label>Confirm Password*</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required />
+        <div id="confirmPasswordError" class="errors"></div>
+        <label>Revenue (Last 3 Years in Lacks)*</label>
+        <input type="number" id="revenue" name="revenue" required />
+        <div id="revenueError" class="errors"></div>
+        <label>No of Employees*</label>
+        <input type="number" id="noOfEmployees" name="noOfEmployees" required />
+        <div id="numberOfEmployeesError" class="errors"></div>
+        <label>GST No*</label>
+        <input type="text" id="GSTNo" name="GSTNo" required />
+        <div id="GSTerror" class="errors"></div>
+        <label>PAN No*</label>
+        <input type="text" id="PANNo" name="PANNo" required />
+        <div id="PANError" class="errors"></div>
+        <label>Phone No*</label>
+        <input type="text" id="PhoneNo" name="PhoneNo" required />
+        <div id="phoneNumberError" class="errors"></div>
+        <label>Category*</label>
+        <select id="selectField" name="selectedOption">
+          <option value=""></option>
+          <% documents.forEach(option => { %>
+          <option value="<%= option.category_name %>">
+            <%= option.category_name %>
+          </option>
+          <% }); %>
+        </select>
+        <div id="categoryError" class="errors"></div>
+        <button type="button" onclick="request()" id="signupBtn">
+          Signup
+        </button>
+      </form>
+    </div>
+  </div>
+  <script>
+    function request() {
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword =
+        document.getElementById("confirmPassword").value;
+      const revenue = document.getElementById("revenue").value;
+      const numberOfEmployees =
+        document.getElementById("noOfEmployees").value;
+      const GSTno = document.getElementById("GSTNo").value;
+      const PAN = document.getElementById("PANNo").value;
+      const phoneNumber = document.getElementById("PhoneNo").value;
+      const category = document.getElementById("selectField").value;
+
+      let errors = 0;
+      document.getElementById("firstNameError").innerHTML = "";
+      document.getElementById("lastNameError").innerHTML = "";
+      document.getElementById("emailError").innerHTML = "";
+      document.getElementById("emailError").innerHTML = "";
+      document.getElementById("passwordError").innerHTML = "";
+      document.getElementById("confirmPasswordError").innerHTML = "";
+      document.getElementById("revenueError").innerHTML = "";
+      document.getElementById("numberOfEmployeesError").innerHTML = "";
+      document.getElementById("GSTerror").innerHTML = "";
+      document.getElementById("PANError").innerHTML = "";
+      document.getElementById("phoneNumberError").innerHTML = "";
+      document.getElementById("categoryError").innerHTML = "";
+
+      if (firstName == "") {
+        document.getElementById("firstNameError").innerHTML =
+          "*Please enter the first name";
+        errors += 1;
+      }
+      if (lastName == "") {
+        document.getElementById("lastNameError").innerHTML =
+          "*Please enter the last name";
+        errors += 1;
+      }
+      if (email == "") {
+        document.getElementById("emailError").innerHTML =
+          "*Please enter the email";
+        errors += 1;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        document.getElementById(
+          "emailError"
+        ).innerHTML = `Please enter a valid email of type "abc@gmail.com"`;
+        errors += 1;
+      }
+      if (password == "") {
+        document.getElementById("passwordError").innerHTML =
+          "*Please enter the password";
+        errors += 1;
+      }
+      if (confirmPassword == "") {
+        document.getElementById("confirmPasswordError").innerHTML =
+          "*Please enter the password again";
+        errors += 1;
+      } else if (password !== confirmPassword) {
+        document.getElementById("confirmPasswordError").innerHTML =
+          "*Both the passwords dose not match";
+        errors += 1;
+      }
+      if (revenue == "") {
+        document.getElementById("revenueError").innerHTML =
+          "*Please enter the revenue";
+        errors += 1;
+      }
+      if (numberOfEmployees == "") {
+        document.getElementById("numberOfEmployeesError").innerHTML =
+          "*Please enter the Number of Employees";
+        errors += 1;
+      }
+      if (GSTno == "") {
+        document.getElementById("GSTerror").innerHTML =
+          "*Please enter the GST number";
+        errors += 1;
+      }
+      // const regpan = /^([a-zA-Z])([0-9])([a-zA-Z])?$/;
+      if (PAN == "") {
+        document.getElementById("PANError").innerHTML =
+          "*Please enter the PAN number";
+        errors += 1;
+      } // else if (!regpan.test(PAN)) {
+      //   document.getElementById("PANError").innerHTML =
+      //     "*Please enter a valid PAN number";
+      //   errors += 1;
+      // }
+
+      if (category == "") {
+        document.getElementById("categoryError").innerHTML =
+          "*Please select a category";
+        errors += 1;
+      }
+      if (phoneNumber == "") {
+        document.getElementById("phoneNumberError").innerHTML =
+          "*Please enter the phoneNumber";
+        errors += 1;
+      }
+
+      if (errors > 0) return false;
+      const formData = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        revenue: revenue,
+        numberOfEmployees: numberOfEmployees,
+        GSTno: GSTno,
+        PAN: PAN,
+        phoneNumber: phoneNumber,
+        category: category,
+      };
+
+      const url = "/addVendor";
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      };
+
+      fetch(url, options)
+        .then((response) => response.json())
+        .then((data) => {
+          //console.log(data.message);
+          // data.type = "faliure"
+          // data.type = "success"
+          if (data.message == "Error") {
+            for (const key in data.errors) {
+              document.getElementById(
+                `${key}`
+              ).innerHTML = `${data.errors[key]}`;
+            }
+          } else {
+            if (data.message != "Otp sent.") alert(data.message);
+            else {
+              window.location.href = "/vendorEmailOTP";
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>

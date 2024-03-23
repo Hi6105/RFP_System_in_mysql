@@ -1,0 +1,24 @@
+<div id="adminLayout">
+  <div id="sideBar">
+    <h1 style="color: white">Velocity</h1>
+    <br /><br />
+    <a href="/Home" style="text-decoration: none; color: white">Dashboard</a>
+    <br />
+    <br />
+    <a href="/vendorData" style="text-decoration: none; color: white">Vendor</a>
+    <br />
+    <br />
+    <a href="/RFP_List" style="text-decoration: none; color: white">RFP Lists</a>
+    <br />
+    <br />
+    <a href="/RFP_Quotes" style="text-decoration: none; color: white">RFP Quotes</a>
+    <br />
+    <br />
+    <a href="/categories?page=1&limit=3" style="text-decoration: none; color: white">Categories</a>
+    <% if(userType == "Super Admin"){ %>
+    <br />
+    <br />
+    <a href="/accessRoles" style="text-decoration: none; color: white">Access Roles</a>
+    <%}%>
+  </div>
+</div>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <style>
+    #action {
+      color: red;
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #dis {
+      margin-bottom: 2%;
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+
+    #addCategory {
+      margin-left: 10px;
+      background-color: #65b741;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #uploadFile {
+      display: none;
+      /* Hide the default file input */
+    }
+
+    #customUpload {
+      margin-left: auto;
+      background-color: #65b741;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    /* Optional: Style the label to make it look like a button */
+    #customUpload:hover {
+      background-color: #4caf50;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Access Roles</h3>
+          <span id="home">Home / Access Roles</span>
+        </div>
+        <div id="dis">
+          <div id="categoryBox">
+            <span>Assign role</span>
+          </div>
+          <div id="allData">
+            <div class="form-container">
+              <form id="formFields">
+                <label>Role type</label>
+                <select id="role">
+                  <option value=""></option>
+                  <option value="Accounts">Accounts</option>
+                  <option value="Procurement Manager">
+                    Procurement Manager
+                  </option>
+                </select>
+                <div id="roleError" class="errors"></div>
+                <label>First Name</label>
+                <input type="text" id="firstName" required />
+                <div id="firstNameError" class="errors"></div>
+                <label>Last Name</label>
+                <input type="text" id="lastName" required />
+                <div id="lastNameError" class="errors"></div>
+                <label>Email</label>
+                <input type="text" id="email" required />
+                <div id="emailError" class="errors"></div>
+
+                <button type="button" onclick="redirect()">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function redirect() {
+      const firstName = document.getElementById("firstName").value;
+      const lastname = document.getElementById("lastName").value;
+      const email = document.getElementById("email").value;
+      const role = document.getElementById("role").value;
+
+      let errors = 0;
+      document.getElementById("firstNameError").innerHTML = "";
+      document.getElementById("lastNameError").innerHTML = "";
+      document.getElementById("emailError").innerHTML = "";
+      document.getElementById("roleError").innerHTML = "";
+
+      if (firstName == "") {
+        document.getElementById("firstNameError").innerHTML =
+          "*Please enter the first name";
+        errors += 1;
+      }
+      if (lastname == "") {
+        document.getElementById("lastNameError").innerHTML =
+          "*Please enter the last name";
+        errors += 1;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (email == "") {
+        document.getElementById("emailError").innerHTML =
+          "*Please enter the email";
+        errors += 1;
+      } else if (!emailRegex.test(email)) {
+        document.getElementById(
+          "emailError"
+        ).innerHTML = `Please enter a valid email of type "abc@gmail.com"`;
+        errors += 1;
+      }
+      if (role == "") {
+        document.getElementById("roleError").innerHTML =
+          "*Please select the access role";
+        errors += 1;
+      }
+
+      if (errors > 0) return false;
+
+      const formData = {
+        firstName: firstName,
+        lastName: lastname,
+        email: email,
+        role: role,
+      };
+
+      const url = "/addSubAdmin";
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      };
+
+      fetch(url, options)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.errors) {
+            for (const key in data.errors) {
+              document.getElementById(
+                `${key}`
+              ).innerHTML = `${data.errors[key]}`;
+            }
+          } else {
+            window.location.href = "/Home";
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+
+</html>

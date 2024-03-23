@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <title>Document</title>
+  <style>
+    #vendorLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", sans-serif;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #topNav {
+      display: flex;
+      flex-direction: row;
+      height: 10%;
+      padding: 1%;
+      align-items: center;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #logout {
+      margin-left: 1%;
+      cursor: pointer;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #dashboard {
+      padding: 1%;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+
+    .avatar-container {
+      width: 40px;
+      /* Set width and height to create a circular shape */
+      height: 40px;
+      border-radius: 50%;
+      /* Makes the shape circular */
+      overflow: hidden;
+      /* Hides overflow of the image */
+      border-style: solid;
+    }
+
+    .avatar-container img {
+      width: 100%;
+      /* Makes the image fill the circular container */
+      height: 100%;
+      object-fit: cover;
+      /* Ensures the image covers the container */
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/vendorLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <a href="/editDetails" id="editDetails"> <%= userType %> </a></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Dashboard</h3>
+          <span id="home">Home</span>
+        </div>
+        <div id="dis">
+          <span>Welcome to RFP System</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>

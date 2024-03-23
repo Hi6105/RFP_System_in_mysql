@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <title>RFP System</title>
+  <style>
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #Logout {
+      margin-left: 1%;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #action {
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #addCategory {
+      margin-left: auto;
+    }
+
+    #dis {
+      margin-bottom: 2%;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/vendorLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Edit Details</h3>
+          <span id="home">Home / Edit Details</span>
+        </div>
+        <div id="dis">
+          <div class="form-container">
+            <form id="formFields" enctype="multipart/form-data">
+              <div>
+                <label>First Name*</label>
+                <input type="text" id="firstName" name="firstName" />
+                <div id="firstNameError" class="errors"></div>
+              </div>
+              <label>Last Name*</label>
+              <input type="text" id="lastName" name="lastName" required />
+              <div id="lastNameError" class="errors"></div>
+              <label>Revenue (Last 3 Years in Lacks)*</label>
+              <input type="number" id="revenue" name="revenue" required />
+              <div id="revenueError" class="errors"></div>
+              <label>No of Employees*</label>
+              <input type="number" id="noOfEmployees" name="noOfEmployees" required />
+              <div id="numberOfEmployeesError" class="errors"></div>
+              <label>GST No*</label>
+              <input type="text" id="GSTNo" name="GSTNo" required />
+              <div id="GSTerror" class="errors"></div>
+              <label>PAN No*</label>
+              <input type="text" id="PANNo" name="PANNo" required />
+              <div id="PANError" class="errors"></div>
+              <label>Phone No*</label>
+              <input type="text" id="PhoneNo" name="PhoneNo" required />
+              <div id="phoneNumberError" class="errors"></div>
+              <label>Category*</label>
+              <select id="selectField" name="selectedOption">
+                <option value=""></option>
+                <% documents.forEach(option => { %>
+                <option value="<%= option.categoryName %>">
+                  <%= option.categoryName %>
+                </option>
+                <% }); %>
+              </select>
+              <div id="categoryError" class="errors"></div>
+              <label>Upload Image*</label>
+              <input type="file" id="image" name="image" accept="image/jpeg, image/png" required />
+              <div id="imageError" class="errors"></div>
+              <button type="button" onclick="request()" id="signupBtn">
+                Edit
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function request() {
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const revenue = document.getElementById("revenue").value;
+      const numberOfEmployees =
+        document.getElementById("noOfEmployees").value;
+      const GSTno = document.getElementById("GSTNo").value;
+      const PAN = document.getElementById("PANNo").value;
+      const phoneNumber = document.getElementById("PhoneNo").value;
+      const category = document.getElementById("selectField").value;
+      const imageInput = document.getElementById("image");
+      const imageError = document.getElementById("imageError");
+      const allowedTypes = ["image/jpeg", "image/png"];
+      const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+
+      let errors = 0;
+      imageError.innerHTML = "";
+      document.getElementById("firstNameError").innerHTML = "";
+      document.getElementById("lastNameError").innerHTML = "";
+      document.getElementById("revenueError").innerHTML = "";
+      document.getElementById("numberOfEmployeesError").innerHTML = "";
+      document.getElementById("GSTerror").innerHTML = "";
+      document.getElementById("PANError").innerHTML = "";
+      document.getElementById("phoneNumberError").innerHTML = "";
+      document.getElementById("categoryError").innerHTML = "";
+
+      if (firstName == "") {
+        document.getElementById("firstNameError").innerHTML =
+          "*Please enter the first name";
+        errors += 1;
+      }
+      if (lastName == "") {
+        document.getElementById("lastNameError").innerHTML =
+          "*Please enter the last name";
+        errors += 1;
+      }
+      if (revenue == "") {
+        document.getElementById("revenueError").innerHTML =
+          "*Please enter the revenue";
+        errors += 1;
+      }
+      if (numberOfEmployees == "") {
+        document.getElementById("numberOfEmployeesError").innerHTML =
+          "*Please enter the Number of Employees";
+        errors += 1;
+      }
+      if (GSTno == "") {
+        document.getElementById("GSTerror").innerHTML =
+          "*Please enter the GST number";
+        errors += 1;
+      }
+      if (PAN == "") {
+        document.getElementById("PANError").innerHTML =
+          "*Please enter the PAN number";
+        errors += 1;
+      }
+      if (phoneNumber == "") {
+        document.getElementById("phoneNumberError").innerHTML =
+          "*Please enter the phoneNumber";
+        errors += 1;
+      }
+      if (category == "") {
+        document.getElementById("categoryError").innerHTML =
+          "*Please select a category";
+        errors += 1;
+      }
+      if (imageInput.files.length === 0) {
+        imageError.innerHTML = "*Please select an image.";
+        errors += 1;
+      }
+      const file = imageInput.files[0];
+      if (!allowedTypes.includes(file.type)) {
+        imageError.innerHTML = "*Only JPG and PNG files are allowed.";
+        errors += 1;
+      }
+      if (file.size > maxSize) {
+        imageError.innerHTML = "*Image size should be less than 2 MB.";
+        errors += 1;
+      }
+
+      if (errors > 0) return false;
+
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("revenue", revenue);
+      formData.append("numberOfEmployees", numberOfEmployees);
+      formData.append("GSTno", GSTno);
+      formData.append("PAN", PAN);
+      formData.append("phoneNumber", phoneNumber);
+      formData.append("category", category);
+      formData.append("image", file);
+
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      let buffer;
+      reader.onload = () => {
+        buffer = reader.result;
+      };
+      fetch("/editVendorDetails", {
+          method: "POST",
+          body: formData,
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message == "Error") {
+            for (const key in data.errors) {
+              document.getElementById(
+                `${key}`
+              ).innerHTML = `${data.errors[key]}`;
+            }
+          } else {
+            window.location.href = "/Home";
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>

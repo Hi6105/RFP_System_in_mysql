@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <style>
+    #action {
+      color: red;
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+      align-items: start;
+    }
+
+    #dis {
+      margin-bottom: 2%;
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+
+    #addCategory {
+      margin-left: 10px;
+      background-color: #65b741;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #uploadFile {
+      display: none;
+      /* Hide the default file input */
+    }
+
+    #customUpload {
+      margin-left: auto;
+      background-color: #65b741;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    /* Optional: Style the label to make it look like a button */
+    #customUpload:hover {
+      background-color: #4caf50;
+    }
+
+    #upload {
+      display: flex;
+      flex-direction: column;
+      margin-left: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Categories</h3>
+          <span id="home">Home / Categories</span>
+        </div>
+        <div id="dis">
+          <div id="categoryBox">
+            <span>Categories</span>
+            <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+            <input type="file" name="uploadFile" id="uploadFile" accept=".xlsx" onchange="handleFileUpload(event)" />
+            <div id="upload">
+              <label for="uploadFile" id="customUpload">Upload File</label>
+              <span style="font-size:small; cursor: pointer;" onclick="downloadSample()">Download Sample</span>
+            </div>
+            <button id="addCategory" onclick="redirect()">
+              Add Category
+            </button>
+            <%}%>
+            </div>
+            <div id="allData">
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Categories Name</th>
+                    <th>Status</th>
+                    <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+            <th>Action</th>
+            <%}%>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% documents.forEach(object => { %>
+            <tr>
+              <td><%= serialNumber %><%serialNumber+=1;%></td>
+              <td><%= object.category_name %></td>
+              <td>
+                <span class="badge" style="background-color: <%= object.category_status === 'active' ? '#65b741' : 'red' %>;"><%= object.category_status %></span>
+              </td>
+              <% if(userType == "Super Admin" || userType == "Procurement Manager"){ %>
+              <td>
+                <span onclick="postData('<%= object.category_id %>')" id="action" style="color: <%= object.category_status === 'active' ? 'red' : '#65b741' %>">
+                  <% if(object.category_status == 'active') { %> Deactivate <%}
+                        else {%> Activate <%}%>
+                      </span>
+                    </td>
+                    <%}%>
+            </tr>
+            <% }); %>
+            </tbody>
+            </table>
+            <div id="pagination">
+              <% if (page > 1) { %>
+              <div class="prevNext">
+                <a class="paginationElement" href="/categories?page=<%= page - 1 %>">Previous</a>
+              </div>
+              <% } %>
+              <span>Page <%= page %> of <%= totalPages %></span>
+              <% if (page < totalPages) { %>
+              <div class="prevNext">
+                <a class="paginationElement" href="/categories?page=<%= page + 1 %>">Next</a>
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function postData(categoryID) {
+      fetch("/categoryStatusUpdate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            categoryID: categoryID,
+          }),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          // Return response.json() to parse JSON asynchronously
+          return response.json();
+        })
+        .then((data) => {
+          // Process the response data here
+          // You can redirect to another page here if needed
+          if (data.message == "Category status updated")
+            window.location.href = "/categories";
+          console.log(data.message);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          // Handle errors
+        });
+    }
+
+    function redirect() {
+      window.location.href = "/addCategory";
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    // Downloading the sample Category excel file.
+    function downloadSample() {
+
+      fetch('/downloadSampleCategories', {
+          method: 'POST',
+        })
+        .then(response => {
+          // Check if the response is successful
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          // Return the response
+          return response.blob();
+        })
+        .then(blob => {
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob);
+          // Create a link element
+          const a = document.createElement('a');
+          // Set the href attribute to the URL
+          a.href = url;
+          // Set the filename
+          a.download = 'SampleCategories.xlsx';
+          // Append the link to the body
+          document.body.appendChild(a);
+          // Click the link programmatically to trigger the download
+          a.click();
+          // Remove the link from the DOM
+          document.body.removeChild(a);
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
+
+    }
+
+    function handleFileUpload(event) {
+      console.log("HI");
+
+
+
+
+      // Uploading the category file in the backend
+      const file = event.target.files[0]; // Get the selected file
+      const formData = new FormData();
+      formData.append("uploadFile", file); // Append the file to FormData
+
+      fetch("/uploadCategory", {
+          method: "POST",
+          body: formData,
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data.message); // Log success message
+          // You can perform additional actions after successful upload
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+
+</html>

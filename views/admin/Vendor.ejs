@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+  <title>Document</title>
+  <style>
+    #action {
+      color: #65b741;
+      font-style: italic;
+      cursor: pointer;
+    }
+
+    #adminLayout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #full {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #welcome {
+      margin-left: auto;
+    }
+
+    #content {
+      flex: 1;
+    }
+
+    #logout {
+      text-decoration: none;
+      color: blue;
+      margin-left: 1%;
+    }
+
+    #nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #home {
+      margin-left: auto;
+    }
+
+    #categories {
+      padding: 1%;
+    }
+
+    #categoriesFields {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    #allData {
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #categoryBox {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #addCategory {
+      margin-left: auto;
+    }
+
+    #vendors {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+
+    #pagination {
+      width: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="full">
+    <div id="sideBar"><%- include('../layouts/adminLayout') %></div>
+    <div id="content">
+      <div id="topNav">
+        <span id="welcome">Welcome <%= userType %></span>
+        <a onclick="logout()" id="logout">Logout</a>
+      </div>
+      <div id="afterNav">
+        <div id="nav">
+          <h3>Vendors List</h3>
+          <span id="home">Home / Vendors</span>
+        </div>
+        <div id="dis">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No.</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Vendor Status</th>
+                <% if(userType == "Super Admin" || userType == "Accounts"){ %>
+                <th>Action</th>
+                <%}%>
+              </tr>
+            </thead>
+            <tbody>
+              <% vendorList.forEach(object => { %>
+              <tr>
+                <td><%= serialNumber %> <% serialNumber += 1; %></td>
+                <td><%= object.first_name %></td>
+                <td><%= object.last_name %></td>
+                <td><%= object.email %></td>
+                <td><%= object.phoneNumber %></td>
+                <td>
+                  <span class="badge" style="background-color: <%= object.status === 'Approved' ? '#65b741' : 'red' %>;"><%= object.status %></span>
+                </td>
+                <% if(userType == "Super Admin" || userType == "Accounts"){ %>
+                <td>
+                  <% if (object.status !== "Approved") { %>
+                  <span onclick="postData('<%= object.user_id %>')" id="action">
+                    Approve
+                  </span>
+                  <% } %>
+                </td>
+                <%}%>
+                </tr>
+                <% }); %>
+                </tbody>
+          </table>
+          <div id="pagination">
+            <% if (page > 1) { %>
+            <div class="prevNext">
+              <a class="paginationElement" href="/vendorData?page=<%= page - 1 %>">Previous</a>
+            </div>
+            <% } %>
+            <span>Page <%= page %> of <%= totalPages %></span>
+            <% if (page < totalPages) { %>
+            <div class="prevNext">
+              <a class="paginationElement" href="/vendorData?page=<%= page + 1 %>">Next</a>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function postData(userID) {
+      console.log(userID);
+      const data = {
+        userID: userID,
+      };
+      // Options for the fetch() request
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Specify the content type as JSON
+        },
+        body: JSON.stringify(data), // Convert data to JSON format
+      };
+
+      // Make the POST request
+      fetch("/approveVendor", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json(); // Parse response JSON
+        })
+        .then((data) => {
+          console.log("Response:", data); // Handle response data
+          window.location.href = "/vendorData";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+
+    function logout() {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/logout", options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+        })
+        .then((data) => {
+          window.location.href = "/login";
+        })
+        .catch((error) => {
+          console.error("Error:", error); // Handle errors
+        });
+    }
+  </script>
+</body>
+
+</html>
