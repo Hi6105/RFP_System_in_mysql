@@ -51,14 +51,16 @@ router.post("/", async (req, res) => {
     }
 
     // Checking if the users password matches with the entered password.
-    const isCorrect = await bcrypt.compare(req.body.password, user.password);
+    const isCorrect = await bcrypt.compare(req.body.password, record[0].password);
     if (!isCorrect) {
       // If not error message is send.
       return res.status(401).json({
         message: "Password is wrong",
-        errors: { passwordError: "Password is wrong" },
+        errors: { "passwordError": "Password is wrong" },
       });
     }
+
+    console.log(record,email);
 
     // Storing user id and type into variables such that we can use them in future.
     let userType, userID;

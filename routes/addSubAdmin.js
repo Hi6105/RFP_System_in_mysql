@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sendMail } = require("./sendMail");
 const pool = require("./DB");
+const bcrypt = require("bcrypt");
 
 /**
  * This route is responsible for creating sub-admins in a company (Accounts, Procurement Manager)
@@ -74,14 +75,18 @@ router.post("/", async (req, res) => {
   };
 
   // Example usage
-  const password = generatePassword();
+  let password = generatePassword();
+  //Hashing the password
+
+  const salt = await bcrypt.genSalt(20);
+  password = await bcrypt.hash(password, salt);
 
   /**
    * Saving sub admin to the database.
    */
 
   await pool.query(`INSERT INTO rfp_user_details (first_name, last_name, email, password, user_type, company_id) 
-  VALUES ('${firstName}','${lastName}','${email}','${password}','${role}',${company[0].company_id})`)
+  VALUES ('${firstName}','${lastName}','${email}','${password}','${role}',${req.session.companyID})`)
 
 
   //sending mail to the receiver

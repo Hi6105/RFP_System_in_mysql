@@ -12,6 +12,8 @@ router.post("/", async (req, res) => {
     `SELECT otp.otp FROM otp where otp.email = '${email}'`
   );
 
+  console.log(record,otp);
+
   if (record.length > 0) {
     if (record[0].otp == otp) {
       // Hashing the password
